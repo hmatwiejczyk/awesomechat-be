@@ -13,8 +13,10 @@
   "author": "Hubert Matwiejczyk",
   "license": "ISC",
   "dependencies": {
+    "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
-    "mongoose": "^5.4.11"
+    "mongoose": "^5.4.11",
+    "morgan": "^1.9.1"
   },
   "devDependencies": {
     "nodemon": "^1.18.10"
