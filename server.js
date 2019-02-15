@@ -15,8 +15,18 @@ server.use(express.json({ limit: '50mb' }));
 server.use(express.urlencoded({ extended: true, limit: '50mb' }));
 server.use(cookieParser());
 // server.use(logger('dev'));
-// routes
 
+// cors
+server.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
+  );
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+// routes
 server.use('/api/awesomechat/auth', authRoutes);
 
 mongoose
