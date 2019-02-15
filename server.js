@@ -5,6 +5,7 @@ const config = require('./config/config')[env];
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const cors = require('cors')
 const logger = require('morgan');
 // local imports
 const authRoutes = require('./routes/authRoutes');
@@ -17,13 +18,22 @@ server.use(cookieParser());
 // server.use(logger('dev'));
 
 // cors
+server.use(cors());
 server.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader(
     'Access-Control-Allow-Methods',
     'OPTIONS, GET, POST, PUT, PATCH, DELETE'
   );
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin',
+    'X-Requested-Width',
+    'Content-Type',
+    'Accept',
+    'Authorization'
+  );
   next();
 });
 // routes
