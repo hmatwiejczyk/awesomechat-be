@@ -1,8 +1,10 @@
 const httpStatus = require('http-status-codes');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const User = require('../models/userModel');
 const helpers = require('../helpers/helpers');
+const config = require('../config/config');
 
 exports.signup = async (req, res, next) => {
   const email = req.body.email;
@@ -32,10 +34,19 @@ exports.signup = async (req, res, next) => {
       password: hashedPw,
       name: helpers.firstUpper(name)
     });
-    const result = await user.save();
+    const createdUser = await user.save();
+    const token = jwt.sign(
+      {
+        email: createdUser.email,
+        userId: createdUser._id.toString()
+      },
+      config.secret,
+      { expiresIn: '1h' }
+    );
+    res.cookie('auth', token);
     res
       .status(httpStatus.CREATED)
-      .json({ message: 'User created', id: result._id});
+      .json({ message: 'User created', token });
   } catch (err) {
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
