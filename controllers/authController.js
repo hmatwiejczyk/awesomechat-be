@@ -43,6 +43,7 @@ exports.login = async (req, res, next) => {
     if (isMatch) {
       const payload = { id: user.id, name: user.name };
       const token = jwt.sign(payload, config.secret, { expiresIn: '1h' });
+      res.cookie('auth', token);
       res.status(200).json({ token: 'Bearer ' + token });
     } else {
       res.status(401).json({ message: 'Wrong password' });
