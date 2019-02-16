@@ -1,20 +1,55 @@
-const Joi = require('joi');
-const httpStatus = require('http-status-codes');
+const Validator = require('validator');
+const { isEmpty } = require('../helpers/helpers');
 
 exports.signupValidator = (req, res, next) => {
-  const schema = Joi.object().keys({
-    email: Joi.string().email(),
-    name: Joi.string()
-      .alphanum()
-      .min(3)
-      .max(30)
-      .required(),
-    password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/) 
-  });
-  const { error, value } = Joi.validate(req.body, schema);
-  
-  if (error && error.details) {
-    return res.status(httpStatus.BAD_REQUEST).json({ message: error.details });
+  let errors = {};
+  const data = req.body;
+  data.name = !isEmpty(data.name) ? data.name : '';
+  data.email = !isEmpty(data.email) ? data.email : '';
+  data.password = !isEmpty(data.password) ? data.password : '';
+  // data.password2 = !isEmpty(data.password2) ? data.password2 : '';
+
+  if (!Validator.isLength(data.name, { min: 2, max: 30 })) {
+    errors.name = 'Name must be between 2 and 30 characters';
+  }
+
+  if (Validator.isEmpty(data.name)) {
+    errors.name = 'Name field is required';
+  }
+
+  if (Validator.isEmpty(data.email)) {
+    errors.email = 'Email field is required';
+  }
+
+  if (!Validator.isEmail(data.email)) {
+    errors.email = 'Email is invalid';
+  }
+
+  if (Validator.isEmpty(data.password)) {
+    errors.password = 'Password field is required';
+  }
+
+  if (!Validator.isLength(data.password, { min: 5, max: 30 })) {
+    errors.password = 'Password must be at least 5 characters';
+  }
+
+  // if (Validator.isEmpty(data.password2)) {
+  //   errors.password2 = 'Confirm Password field is required';
+  // }
+
+  // if (!Validator.equals(data.password, data.password2)) {
+  //   errors.password2 = 'Passwords must match';
+  // }
+
+
+
+  // Check Validation
+  if (!isEmpty(errors)) {
+    return res.status(400).json(errors);
   }
   next();
-}
+  // return {
+  //   errors,
+  //   isValid: isEmpty(errors)
+  // };
+};

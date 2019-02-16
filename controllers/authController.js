@@ -1,4 +1,3 @@
-const httpStatus = require('http-status-codes');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -15,18 +14,9 @@ exports.signup = async (req, res, next) => {
     email: helpers.lowerCase(email)
   });
   if (userEmail) {
-    return res
-      .status(httpStatus.CONFLICT)
-      .json({ message: 'Email already exists' });
+    return res.status(400).json({ email: 'Email already exists' });
   }
-  const userName = await User.findOne({
-    name: helpers.firstUpper(name)
-  });
-  if (userName) {
-    return res
-      .status(httpStatus.CONFLICT)
-      .json({ message: 'Name already exists' });
-  }
+
   try {
     const hashedPw = await bcrypt.hash(password, 12);
     const user = new User({
@@ -44,12 +34,8 @@ exports.signup = async (req, res, next) => {
       { expiresIn: '1h' }
     );
     res.cookie('auth', token);
-    res
-      .status(httpStatus.CREATED)
-      .json({ message: 'User created', token });
+    res.status(201).json({ message: 'User created', token });
   } catch (err) {
-    res
-      .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Error occured' });
+    res.status(500).json({ message: 'Error occured' });
   }
 };
