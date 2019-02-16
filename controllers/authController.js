@@ -32,3 +32,22 @@ exports.signup = async (req, res, next) => {
     res.status(500).json({ message: 'Error occured' });
   }
 };
+
+exports.login = async (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  try {
+    const user = await User.findOne({ email: email });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
+      const payload = { id: user.id, name: user.name };
+      const token = jwt.sign(payload, config.secret, { expiresIn: '1h' });
+      res.status(200).json({ token: 'Bearer ' + token });
+    } else {
+      res.status(401).json({ message: 'Wrong password' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Error occured' });
+  }
+};
