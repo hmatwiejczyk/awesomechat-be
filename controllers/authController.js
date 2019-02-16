@@ -10,13 +10,6 @@ exports.signup = async (req, res, next) => {
   const name = req.body.name;
   const password = req.body.password;
 
-  const userEmail = await User.findOne({
-    email: helpers.lowerCase(email)
-  });
-  if (userEmail) {
-    return res.status(400).json({ email: 'Email already exists' });
-  }
-
   try {
     const hashedPw = await bcrypt.hash(password, 12);
     const user = new User({

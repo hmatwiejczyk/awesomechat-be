@@ -1,55 +1,61 @@
 const Validator = require('validator');
-const { isEmpty } = require('../helpers/helpers');
+const { isEmpty, lowerCase } = require('../helpers/helpers');
+const User = require('../models/userModel');
 
-exports.signupValidator = (req, res, next) => {
+exports.signupValidator = async (req, res, next) => {
   let errors = {};
-  const data = req.body;
-  data.name = !isEmpty(data.name) ? data.name : '';
-  data.email = !isEmpty(data.email) ? data.email : '';
-  data.password = !isEmpty(data.password) ? data.password : '';
-  // data.password2 = !isEmpty(data.password2) ? data.password2 : '';
+  let email = req.body.email;
+  let name = req.body.name;
+  let password = req.body.password;
+  let password2 = req.body.password2;
 
-  if (!Validator.isLength(data.name, { min: 2, max: 30 })) {
+  name = !isEmpty(name) ? name : '';
+  email = !isEmpty(email) ? email : '';
+  password = !isEmpty(password) ? password : '';
+  password2 = !isEmpty(password2) ? password2 : '';
+
+  if (!Validator.isLength(name, { min: 2, max: 30 })) {
     errors.name = 'Name must be between 2 and 30 characters';
   }
 
-  if (Validator.isEmpty(data.name)) {
+  if (Validator.isEmpty(name)) {
     errors.name = 'Name field is required';
   }
 
-  if (Validator.isEmpty(data.email)) {
-    errors.email = 'Email field is required';
-  }
-
-  if (!Validator.isEmail(data.email)) {
+  if (!Validator.isEmail(email)) {
     errors.email = 'Email is invalid';
   }
 
-  if (Validator.isEmpty(data.password)) {
-    errors.password = 'Password field is required';
+  if (Validator.isEmpty(email)) {
+    errors.email = 'Email field is required';
   }
 
-  if (!Validator.isLength(data.password, { min: 5, max: 30 })) {
+  if (!Validator.isLength(password, { min: 5, max: 30 })) {
     errors.password = 'Password must be at least 5 characters';
   }
 
-  // if (Validator.isEmpty(data.password2)) {
-  //   errors.password2 = 'Confirm Password field is required';
-  // }
+  if (Validator.isEmpty(password)) {
+    errors.password = 'Password field is required';
+  }
 
-  // if (!Validator.equals(data.password, data.password2)) {
-  //   errors.password2 = 'Passwords must match';
-  // }
+  if (!Validator.equals(password, password2)) {
+    errors.password2 = 'Passwords must match';
+  }
 
+  if (Validator.isEmpty(password2)) {
+    errors.password2 = 'Password2 field is required';
+  }
 
+  const userEmail = await User.findOne({
+    email: lowerCase(email)
+  });
 
-  // Check Validation
+  if (userEmail) {
+    errors.email = 'Email already exists';
+  }
+
   if (!isEmpty(errors)) {
     return res.status(400).json(errors);
   }
   next();
-  // return {
-  //   errors,
-  //   isValid: isEmpty(errors)
-  // };
 };
